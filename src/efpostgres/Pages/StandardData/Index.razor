@@ -1,0 +1,86 @@
+﻿@page "/standarddata"
+
+<p class="display-3">Standard Data</p>
+
+<RadzenButton TItem="StandardData" Text="Add New Row" Click="() => AddButtonHandler()"></RadzenButton>
+<br/><br/>
+<RadzenGrid Data="_dbData" Ref="_stdDataGrid">
+  <Columns>
+    <RadzenGridColumn TItem="StandardData" Property="Pkid" Title="Primary ID#"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData" Property="IntVal" Title="Integer"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData" Property="DecimalVal" Title="Decimal"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData" Property="StringVal" Title="String"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData" Property="TextVal" Title="Text"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData" Property="BoolVal" Title="Bool"></RadzenGridColumn>
+    <RadzenGridColumn TItem="StandardData">
+      <Template Context="stdDataEntry">
+        <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="() => EditEntry(stdDataEntry)"></RadzenButton>
+        <RadzenButton Text="Delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="() => DeleteEntry(stdDataEntry)"></RadzenButton>
+      </Template>
+    </RadzenGridColumn>
+  </Columns>
+</RadzenGrid>
+
+
+@code {
+
+  [Inject]
+  private DataContext _db { get; set; }
+
+  [Inject]
+  private DialogService _dialogs { get; set; }
+
+  [Inject]
+  private NotificationService _notifications { get; set; }
+
+  private List<StandardData> _dbData = new List<StandardData>();
+  private RadzenGrid<StandardData> _stdDataGrid;
+
+  protected override void OnInitialized()
+  {
+  //base.OnInitialized();
+    _dbData = _db.StandardData.ToList();
+  }
+
+  private async Task AddButtonHandler()
+  {
+    bool result = await _dialogs.OpenAsync<AddForm>("Add Standard Data Item");
+    if (result)
+    {
+      _dbData = _db.StandardData.ToList();
+  //await _stdDataGrid.Reload();
+      await _dialogs.OpenAsync<MessageBox>("Notification",
+        new Dictionary<string, object>() {{"DialogMessage", "Data Item was Saved"}}
+        );
+      return;
+    }
+
+    _dialogs.Open<MessageBox>("Notification",
+      new Dictionary<string, object>() {{"DialogMessage", "Data Item was NOT Saved"}}
+      );
+  }
+
+  private async Task DeleteEntry(StandardData stdDataEntry)
+  {
+    var result = await _dialogs.Confirm("Are you sure you wish to delete this entry?", "Delete Confirmation");
+    if (result == true)
+    {
+      _db.StandardData.Remove(stdDataEntry);
+      _db.SaveChanges();
+      _dbData = _db.StandardData.ToList();
+      _notifications.Notify(NotificationSeverity.Success, "Standard Data Record Was Deleted");
+    }
+
+    _notifications.Notify(NotificationSeverity.Error, "Standard Data Record Was NOT Deleted");
+  }
+
+  private async Task EditEntry(StandardData stdDataEntry)
+  {
+    var result = await _dialogs.OpenAsync<EditForm>("Edit Entry",
+      new Dictionary<string, object>()
+      {
+        {"ExistingItem", stdDataEntry}
+      });
+  }
+
+}

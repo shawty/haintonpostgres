@@ -1,0 +1,19 @@
+﻿<div class="row rowGapBottom justify-content-center">
+  <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+    <p class="lead">@DialogMessage</p>
+  </div>
+</div>
+
+<div class="row rowGapBottom justify-content-center">
+  <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+    <RadzenButton Text="Ok" Click="@(() => _dialogs.Close())"/>
+  </div>
+</div>
+
+@code {
+
+  [Inject] private DialogService _dialogs { get; set; }
+  
+  [Parameter] public string DialogMessage { get; set; }
+
+}

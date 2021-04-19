@@ -1,0 +1,79 @@
+﻿<RadzenTemplateForm TItem="StandardData" Data="@_newItem" Submit="@((StandardData newItem) => HandleSubmit(newItem))">
+
+    <div class="row rowGapBottom">
+        <div class="col-md-4 align-items-center d-flex">
+            <RadzenLabel Text="Integer"/>
+        </div>
+        <div class="col-md-8">
+            <RadzenNumeric TValue="int" @bind-Value="@_newItem.IntVal" style="width: 100%;" Name="IntVal"/>
+        </div>
+    </div>
+
+    <div class="row rowGapBottom">
+        <div class="col-md-4 align-items-center d-flex">
+            <RadzenLabel Text="Decimal"/>
+        </div>
+        <div class="col-md-8">
+            <RadzenNumeric TValue="decimal" @bind-Value="_newItem.DecimalVal" style="width: 100%;" Name="DecimalVal"/>
+        </div>
+    </div>
+
+    <div class="row rowGapBottom">
+        <div class="col-md-4 align-items-center d-flex">
+            <RadzenLabel Text="String"/>
+        </div>
+        <div class="col-md-8">
+            <RadzenTextBox @bind-Value="_newItem.StringVal" style="width: 100%;" Name="StringVal"/>
+        </div>
+    </div>
+
+    <div class="row rowGapBottom">
+        <div class="col-md-4 align-items-center d-flex">
+            <RadzenLabel Text="Text"/>
+        </div>
+        <div class="col-md-8">
+            <RadzenTextBox @bind-Value="_newItem.TextVal" style="width: 100%;" Name="TextVal"/>
+        </div>
+    </div>
+
+    <div class="row rowGapBottom">
+        <div class="col-md-4 align-items-center d-flex">
+            <RadzenLabel Text="Boolean"/>
+        </div>
+        <div class="col-md-8">
+            <RadzenSwitch @bind-Value="_newItem.BoolVal" />
+        </div>
+    </div>
+
+    <div class="row rowGapBottom justify-content-center">
+        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel"/>
+        </div>
+    </div>
+
+</RadzenTemplateForm>
+
+@code {
+
+    [Inject]
+    private DataContext _db { get; set; }
+
+    [Inject]
+    private DialogService _dialogs { get; set; }
+
+    private StandardData _newItem = new StandardData();
+
+    private void HandleSubmit(StandardData newItem)
+    {
+        _db.StandardData.Add(newItem);
+        _db.SaveChanges();
+        _dialogs.Close(true);
+    }
+
+    private void Cancel()
+    {
+        _dialogs.Close(false);
+    }
+    
+}
