@@ -12,6 +12,7 @@ namespace efpostgres.Database.Entities
     public int Pkid { get; set; }
 
     [Column("textval")]
+    [Required]
     public string TextVal { get; set; }
 
   }

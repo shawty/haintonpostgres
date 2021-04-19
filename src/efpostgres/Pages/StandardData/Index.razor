@@ -14,7 +14,7 @@
     <RadzenGridColumn TItem="StandardData" Property="BoolVal" Title="Bool"></RadzenGridColumn>
     <RadzenGridColumn TItem="StandardData">
       <Template Context="stdDataEntry">
-        <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Click="() => EditEntry(stdDataEntry)"></RadzenButton>
+        <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="() => EditEntry(stdDataEntry)"></RadzenButton>
         <RadzenButton Text="Delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="() => DeleteEntry(stdDataEntry)"></RadzenButton>
       </Template>
     </RadzenGridColumn>
@@ -69,6 +69,7 @@
       _db.SaveChanges();
       _dbData = _db.StandardData.ToList();
       _notifications.Notify(NotificationSeverity.Success, "Standard Data Record Was Deleted");
+      return;
     }
 
     _notifications.Notify(NotificationSeverity.Error, "Standard Data Record Was NOT Deleted");

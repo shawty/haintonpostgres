@@ -28,7 +28,11 @@ namespace efpostgres
     {
       services.AddDbContext<DataContext>(options =>
       {
-        options.UseNpgsql(Configuration.GetConnectionString("DataConnection"));
+        options.UseNpgsql(Configuration.GetConnectionString("DataConnection"), options =>
+        {
+          //options.SetPostgresVersion(9, 0);
+          options.UseNetTopologySuite();
+        });
       });
 
       services.AddScoped<DialogService>();

@@ -1,0 +1,95 @@
+﻿@page "/advanceddata"
+@using efpostgres.DataModels
+@using System.Text.Json
+@using NpgsqlTypes
+@using System.Net
+@using Point = NetTopologySuite.Geometries.Point
+
+<p class="display-3">Advanced Data</p>
+<p class="lead">There's no table for this one, nor is there a sensible edit form, instead, put a break point on the add method
+  at line 36, then hit the add new row button</p>
+<p>The data model is far to complex to build a simple form, so it's better to demonstrate the use of these types by using
+   the debugger and single stepping.</p>
+
+<RadzenButton TItem="StandardData" Text="Add New Row" Click="() => AddButtonHandler()"></RadzenButton>
+
+@code {
+
+  [Inject]
+  private DataContext _db { get; set; }
+
+  [Inject]
+  private DialogService _dialogs { get; set; }
+
+  [Inject]
+  private NotificationService _notifications { get; set; }
+
+  private List<StandardData> _dbData = new List<StandardData>();
+  private RadzenGrid<StandardData> _stdDataGrid;
+
+  protected override void OnInitialized()
+  {
+    //base.OnInitialized();
+    //_dbData = _db.StandardData.ToList();
+
+  }
+
+  private async Task AddButtonHandler()
+  {
+    AdvancedData advancedData = new AdvancedData();
+
+    JsonTestData testData = new JsonTestData()
+    {
+      Id = 1,
+      Age = 21,
+      Name = "Shawty",
+      MileStones = new List<string>()
+      {
+        "Went to School", "Went to College", "Went to University", "Became a programmer"
+      }
+    };
+    
+    advancedData.IntArray = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    advancedData.StrArray = new string[] {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
+    advancedData.JsonVal = JsonSerializer.Serialize<JsonTestData>(testData);
+    advancedData.JsonbVal = JsonSerializer.Serialize<JsonTestData>(testData);
+
+    NpgsqlRange<DateTime> dateRange = new NpgsqlRange<DateTime>(
+      DateTime.UtcNow, 
+      DateTime.UtcNow.AddYears(1)
+      );
+
+    advancedData.DateRangeVal = dateRange;
+
+    IPAddress ipAddy = new IPAddress(new byte[] {192, 168, 0, 1});
+
+    advancedData.InetVal = ipAddy;
+
+    Point geoPoint = new Point(123.456, 789.123);
+
+    advancedData.GeoVal = geoPoint;
+
+    _db.AdvancedData.Add(advancedData);
+    _db.SaveChanges();
+  }
+
+  private async Task DeleteEntry(StandardData stdDataEntry)
+  {
+    var result = await _dialogs.Confirm("Are you sure you wish to delete this entry?", "Delete Confirmation");
+    if (result == true)
+    {
+      _db.StandardData.Remove(stdDataEntry);
+      _db.SaveChanges();
+      _dbData = _db.StandardData.ToList();
+      _notifications.Notify(NotificationSeverity.Success, "Standard Data Record Was Deleted");
+      return;
+    }
+
+    _notifications.Notify(NotificationSeverity.Error, "Standard Data Record Was NOT Deleted");
+  }
+
+  private async Task EditEntry(StandardData stdDataEntry)
+  {
+  }
+
+}

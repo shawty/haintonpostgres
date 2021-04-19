@@ -1,0 +1,83 @@
+﻿@page "/identitydata"
+
+<p class="display-3">Standard Data</p>
+
+<RadzenButton TItem="IdentityData" Text="Add New Row" Click="() => AddButtonHandler()"></RadzenButton>
+<br/><br/>
+<RadzenGrid Data="_dbData" Ref="_stdDataGrid">
+  <Columns>
+    <RadzenGridColumn TItem="IdentityData" Property="Pkid" Title="Primary ID#"></RadzenGridColumn>
+    <RadzenGridColumn TItem="IdentityData" Property="TextVal" Title="A line of Text"></RadzenGridColumn>
+    <RadzenGridColumn TItem="IdentityData">
+      <Template Context="idDataEntry">
+        <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="() => EditEntry(idDataEntry)"></RadzenButton>
+        <RadzenButton Text="Delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="() => DeleteEntry(idDataEntry)"></RadzenButton>
+      </Template>
+    </RadzenGridColumn>
+  </Columns>
+</RadzenGrid>
+
+
+@code {
+
+  [Inject]
+  private DataContext _db { get; set; }
+
+  [Inject]
+  private DialogService _dialogs { get; set; }
+
+  [Inject]
+  private NotificationService _notifications { get; set; }
+
+  private List<IdentityData> _dbData = new List<IdentityData>();
+  private RadzenGrid<IdentityData> _idDataGrid;
+
+  protected override void OnInitialized()
+  {
+  //base.OnInitialized();
+    _dbData = _db.IdentityData.ToList();
+  }
+
+  private async Task AddButtonHandler()
+  {
+    bool result = await _dialogs.OpenAsync<AddForm>("Add Identity Data Item");
+    if (result)
+    {
+      _dbData = _db.IdentityData.ToList();
+  //await _idDataGrid.Reload();
+      await _dialogs.OpenAsync<MessageBox>("Notification",
+        new Dictionary<string, object>() {{"DialogMessage", "Data Item was Saved"}}
+        );
+      return;
+    }
+
+    _dialogs.Open<MessageBox>("Notification",
+      new Dictionary<string, object>() {{"DialogMessage", "Data Item was NOT Saved"}}
+      );
+  }
+
+  private async Task DeleteEntry(IdentityData idDataEntry)
+  {
+    var result = await _dialogs.Confirm("Are you sure you wish to delete this entry?", "Delete Confirmation");
+    if (result == true)
+    {
+      _db.IdentityData.Remove(idDataEntry);
+      _db.SaveChanges();
+      _dbData = _db.IdentityData.ToList();
+      _notifications.Notify(NotificationSeverity.Success, "Identity Data Record Was Deleted");
+      return;
+    }
+
+    _notifications.Notify(NotificationSeverity.Error, "Identity Data Record Was NOT Deleted");
+  }
+
+  private async Task EditEntry(IdentityData idDataEntry)
+  {
+    var result = await _dialogs.OpenAsync<EditForm>("Edit Entry",
+      new Dictionary<string, object>()
+      {
+        {"ExistingItem", idDataEntry}
+      });
+  }
+
+}

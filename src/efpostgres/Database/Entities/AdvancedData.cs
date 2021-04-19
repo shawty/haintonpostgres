@@ -1,5 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net;
+using efpostgres.DataModels;
+using NetTopologySuite.Geometries;
+using NpgsqlTypes;
 
 namespace efpostgres.Database.Entities
 {
@@ -12,25 +17,29 @@ namespace efpostgres.Database.Entities
     public int Pkid { get; set; }
 
     [Column("intarray")]
-    public int IntArray { get; set; }
+    public int[] IntArray { get; set; }
 
     [Column("strarray")]
-    public decimal StrArray { get; set; }
+    public string[] StrArray { get; set; }
 
-    [Column("jsonval")]
+    [Column("jsonval", TypeName = "json")]
+    //[Column("jsonval")]
+    //public JsonTestData JsonVal { get; set; }
     public string JsonVal { get; set; }
 
-    [Column("jsonbval")]
+    [Column("jsonbval", TypeName = "jsonb")]
+    //[Column("jsonbval")]
+    //public JsonTestData JsonbVal { get; set; }
     public string JsonbVal { get; set; }
 
     [Column("daterangeval")]
-    public bool DateRangeVal { get; set; }
+    public NpgsqlRange<DateTime> DateRangeVal { get; set; }
 
     [Column("inetval")]
-    public bool InetVal { get; set; }
+    public IPAddress InetVal { get; set; }
 
     [Column("geoval")]
-    public bool GeoVal { get; set; }
+    public Point GeoVal { get; set; }
 
   }
 }
